@@ -10,6 +10,6 @@ version=4
 #opts="pgpsigurlmangle=s%$%.sig%"
 
 # GitHub hosted projects.
-opts="filenamemangle=s%(?:.*?)?v?(@ANY_VERSION@@ARCHIVE_EXT@)%@PACKAGE@-$1%" \
+opts="filenamemangle=s%(?:.*?)?v?(\d+\.\d+\.\d+)@ARCHIVE_EXT@%@PACKAGE@-$1%" \
     https://github.com/ruyisdk/ruyi/tags \
-    (?:.*?/)v?@ANY_VERSION@@ARCHIVE_EXT@
+    (?:.*?/)v?(\d+\.\d+\.\d+)@ARCHIVE_EXT@
