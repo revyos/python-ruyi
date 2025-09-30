@@ -1,16 +1,16 @@
 [build-system]
-requires = ["poetry-core"]
+requires = ["poetry-core<2"]
 build-backend = "poetry.core.masonry.api"
 
-[project]
+[tool.poetry]
 name = "ruyi"
 version = "0.41.0"
 description = "Package manager for RuyiSDK"
 keywords = ["ruyi", "ruyisdk"]
-license = { file = "LICENSE-Apache.txt" }
+license = "Apache-2.0"
 readme = "README.md"
 authors = [
-  { name = "WANG Xuerui", email = "wangxuerui@iscas.ac.cn" }
+  "WANG Xuerui <wangxuerui@iscas.ac.cn>",
 ]
 classifiers = [
   "Development Status :: 3 - Alpha",
@@ -27,24 +27,25 @@ classifiers = [
   "Topic :: System :: Software Distribution",
   "Typing :: Typed",
 ]
-requires-python = ">=3.10"
-dependencies = [
-  "arpy",
-  "fastjsonschema>=2.15.1",
-  "jinja2 (>=3, <4)",
-  "packaging>=21",
-  "pygit2>=1.6",
-  "pyyaml>=5.4",
-  "requests (>=2, <3)",
-  "rich>=11.2.0",
-  "semver>=2.10",
-  "tomlkit>=0.9",
-  "tomli>=1.2; python_version<'3.11'",
-  "tzdata; sys_platform=='win32'",
-  "argcomplete (>=2.0.0,<4.0.0)",
-]
+include = ["ruyi/py.typed"]
 
-[project.scripts]
+[tool.poetry.dependencies]
+python = ">=3.10"
+arpy = "*"
+fastjsonschema = ">=2.15.1"
+jinja2 = "^3"
+packaging = ">=21"
+pygit2 = ">=1.6"
+pyyaml = ">=5.4"
+requests = "^2"
+rich = ">=11.2.0"
+semver = ">=2.10"
+tomlkit = ">=0.9"
+tomli = { version = ">=1.2", python = "<3.11" }
+tzdata = { version = "*", platform = "win32" }
+argcomplete = ">=2.0.0,<4.0.0"
+
+[tool.poetry.scripts]
 ruyi = "ruyi.__main__:entrypoint"
 
 [project.urls]
@@ -54,27 +55,6 @@ download = "https://ruyisdk.org/download"
 github = "https://github.com/ruyisdk/ruyi"
 issues = "https://github.com/ruyisdk/ruyi/issues"
 repository = "https://github.com/ruyisdk/ruyi.git"
-
-[tool.poetry]
-include = ["ruyi/py.typed"]
-exclude = ["**/.gitignore"]
-
-[tool.poetry.group.dev.dependencies]
-mypy = "^1.9.0"
-pyright = "^1.1.389"
-pytest = ">=6.2.5"
-ruff = "^0.8.1"
-tomlkit-extras = "^0.2.0"
-typing-extensions = ">=3.10.0.2"
-
-types-cffi = "^1.16.0.20240106"
-types-pygit2 = "^1.14.0.20240317"
-types-PyYAML = "^6.0.12.20240311"
-types-requests = "^2.31.0.20240311"
-
-[tool.poetry.group.dist.dependencies]
-certifi = "*"
-nuitka = "^2.0"
 
 
 [tool.mypy]
