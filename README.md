@@ -28,6 +28,8 @@ PyPI installation, but the one-file distribution is a bit easier to set up
 because one doesn't have to first configure a Python environment. Either way,
 the feature set should be the same.
 
+Detailed installation instructions are also available [at our documentation site](https://ruyisdk.org/en/docs/Package-Manager/installation).
+
 ### ✅ Recommended: Install from PyPI
 
 This is the recommended way to install `ruyi` on your machine. In any Python
@@ -187,8 +189,6 @@ We collect the following information with `ruyi`:
 * invocation patterns of various `ruyi` subcommands:
     * without exposing any parameters
     * invocation time is recorded with a granularity of 1 minute
-
-You can see our Privacy Policy on the RuyiSDK website.
 
 You can see [our Privacy Policy][privacy-policy-en] ([中文][privacy-policy-zh])
 on the RuyiSDK website.

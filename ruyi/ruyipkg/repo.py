@@ -284,7 +284,8 @@ class MetadataRepo(ProvidesPackageManifests):
             self.repo = Repository(self.root)
             return self.repo
 
-        self.logger.D(f"{self.root} does not exist, cloning from {self.remote}")
+        self.logger.I(f"the package repository does not exist at [yellow]{self.root}[/]")
+        self.logger.I(f"cloning from [cyan link={self.remote}]{self.remote}[/]")
 
         with RemoteGitProgressIndicator() as pr:
             repo = clone_repository(
@@ -306,13 +307,15 @@ class MetadataRepo(ProvidesPackageManifests):
         return self.repo
 
     def sync(self) -> None:
+        self._gc.logger.I("updating the package repository")
+
         repo = self.ensure_git_repo()
 
         # only manage the repo settings on the user's behalf if the user
         # has not overridden the repo directory themselves
         allow_auto_management = self._gc.override_repo_dir is None
 
-        return pull_ff_or_die(
+        pull_ff_or_die(
             self.logger,
             repo,
             "origin",
@@ -320,6 +323,8 @@ class MetadataRepo(ProvidesPackageManifests):
             self.branch,
             allow_auto_management=allow_auto_management,
         )
+
+        self._gc.logger.I("package repository is updated")
 
     @property
     def global_config(self) -> "GlobalConfig":
