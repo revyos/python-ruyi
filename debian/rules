@@ -18,10 +18,14 @@ poetry_1_release := bookworm jammy noble beige
 export PYBUILD_NAME=python-ruyi
 
 %:
-	dh $@ --buildsystem=pybuild
+	dh $@ --buildsystem=pybuild --with bash-completion
 
 override_dh_auto_configure:
 ifneq (,$(filter $(distrelease),$(poetry_1_release)))
 	mv -v contrib/poetry-1.x/* .
 endif
 	dh_auto_configure
+
+override_dh_auto_install:
+	dh_auto_install
+	dh_install debian/config.toml usr/share/ruyi/
