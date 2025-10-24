@@ -43,15 +43,23 @@ class ConfigGetCommand(
 
     @classmethod
     def main(cls, cfg: "config.GlobalConfig", args: argparse.Namespace) -> int:
+        from ..config.errors import InvalidConfigKeyError
         from ..config.schema import encode_value
+        from ..utils.toml import NoneValue
 
         key: str = args.key
 
-        val = cfg.get_by_key(key)
-        if val is None:
+        try:
+            val = cfg.get_by_key(key)
+        except InvalidConfigKeyError:
             return 1
 
-        cfg.logger.stdout(encode_value(val))
+        try:
+            encoded_val = encode_value(val)
+        except NoneValue:
+            return 1
+
+        cfg.logger.stdout(encoded_val)
         return 0
 
 
@@ -80,6 +88,7 @@ class ConfigSetCommand(
     @classmethod
     def main(cls, cfg: "config.GlobalConfig", args: argparse.Namespace) -> int:
         from ..config.editor import ConfigEditor
+        from ..config.errors import ProtectedGlobalConfigError
         from ..config.schema import decode_value
 
         key: str = args.key
@@ -87,7 +96,14 @@ class ConfigSetCommand(
 
         pyval = decode_value(key, val)
         with ConfigEditor.work_on_user_local_config(cfg) as ed:
-            ed.set_value(key, pyval)
+            try:
+                ed.set_value(key, pyval)
+            except ProtectedGlobalConfigError:
+                cfg.logger.F(
+                    f"the config [yellow]{key}[/] is protected and not meant to be overridden by users",
+                )
+                return 2
+
             ed.stage()
 
         return 0
