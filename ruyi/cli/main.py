@@ -6,6 +6,7 @@ from typing import Final, TYPE_CHECKING
 from ..config import GlobalConfig
 from ..telemetry.scope import TelemetryScope
 from ..utils.global_mode import GlobalModeProvider
+from ..version import RUYI_SEMVER
 from . import RUYI_ENTRYPOINT_NAME
 from .oobe import OOBE
 
@@ -21,18 +22,40 @@ def is_called_as_ruyi(argv0: str) -> bool:
     return os.path.basename(argv0).lower() in ALLOWED_RUYI_ENTRYPOINT_NAMES
 
 
+def should_prompt_for_renaming(argv0: str) -> bool:
+    # We need to allow things like "ruyi-qemu" through, to not break our mux.
+    # Only consider filenames starting with both our name *and* version to be
+    # un-renamed onefile artifacts that warrant a rename prompt.
+    likely_artifact_name_prefix = f"{RUYI_ENTRYPOINT_NAME}-{RUYI_SEMVER}."
+    return os.path.basename(argv0).lower().startswith(likely_artifact_name_prefix)
+
+
 def main(gm: GlobalModeProvider, gc: GlobalConfig, argv: list[str]) -> int:
-    oobe = OOBE(gc)
+    logger = gc.logger
 
-    if tm := gc.telemetry:
-        tm.check_first_run_status()
-        tm.init_installation(False)
-        atexit.register(tm.flush)
-        oobe.handlers.append(tm.oobe_prompt)
+    # do not init telemetry or OOBE on CLI auto-completion invocations, because
+    # our output isn't meant for humans in that case, and a "real" invocation
+    # will likely follow shortly after
+    if not gm.is_cli_autocomplete:
+        oobe = OOBE(gc)
 
-    oobe.maybe_prompt()
+        if tm := gc.telemetry:
+            tm.check_first_run_status()
+            tm.init_installation(False)
+            atexit.register(tm.flush)
+            oobe.handlers.append(tm.oobe_prompt)
+
+        oobe.maybe_prompt()
 
     if not is_called_as_ruyi(gm.argv0):
+        if should_prompt_for_renaming(gm.argv0):
+            logger.F(
+                f"the {RUYI_ENTRYPOINT_NAME} executable must be named [green]'{RUYI_ENTRYPOINT_NAME}'[/] to work"
+            )
+            logger.I(f"it is now [yellow]'{gm.argv0}'[/]")
+            logger.I("please rename the command file and retry")
+            return 1
+
         from ..mux.runtime import mux_main
 
         # record an invocation and the command name being proxied to
@@ -54,7 +77,6 @@ def main(gm: GlobalModeProvider, gc: GlobalConfig, argv: list[str]) -> int:
     if TYPE_CHECKING:
         from .cmd import CLIEntrypoint
 
-    logger = gc.logger
     p = RootCommand.build_argparse(gc)
 
     # We have to ensure argcomplete is only requested when it's supposed to,

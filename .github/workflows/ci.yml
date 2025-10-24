@@ -62,7 +62,7 @@ jobs:
     name: license compatibility
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: Install Poetry
         run: pipx install poetry
       - uses: actions/setup-python@v5
@@ -133,7 +133,7 @@ jobs:
             poetry: 1
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           submodules: ${{ matrix.baseline && 'false' || 'recursive' }}
 
@@ -156,9 +156,14 @@ jobs:
         if: success() && matrix.baseline
         run: ./scripts/install-baseline-deps.sh
 
-      - name: Ensure metadata consistency for Poetry 1.x
+      - name: Ensure version metadata consistency
+        # Originally this was only checking the Poetry 1.x metadata, but now
+        # the hard-coded version string in ruyi.version is checked as well.
+        # This needs to be run only once so we still keep it in the Poetry 1.x
+        # job -- if someday Poetry 1.x compatibility is to be removed, be sure
+        # to retain the other check.
         if: success() && !matrix.baseline && matrix.poetry == 1
-        run: ./scripts/lint-poetry-1-metadata.py
+        run: ./scripts/lint-version-metadata.py
 
       - name: Install Poetry
         if: success() && !matrix.baseline
@@ -228,7 +233,7 @@ jobs:
         run: |
           sed -i 's@pip install -i https://mirrors.bfsu.edu.cn/pypi/web/simple @pip install @' tests/ruyi-litester/scripts/ruyi/ruyi-src-install.bash
           export PIPX_BIN_DIR=/usr/local/bin
-          export RUYI_VERSION=0.38.1
+          export RUYI_VERSION=0.41.0
           ./tests/ruyi-litester/rit.bash -s --suites "$(pwd)/tests/rit-suites" ruyi-gha
 
   shellcheck:
@@ -237,7 +242,7 @@ jobs:
     needs:
       - compliance-result
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: Lint with shellcheck
         run: ./scripts/lint-shell-scripts.sh
 
@@ -267,7 +272,7 @@ jobs:
     outputs:
       matrix: ${{ steps.gen_matrix.outputs.matrix }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: Generate the matrix
         id: gen_matrix
         run: scripts/gen_matrix.py linux
@@ -282,7 +287,7 @@ jobs:
     outputs:
       matrix: ${{ steps.gen_matrix.outputs.matrix }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: Generate the matrix
         id: gen_matrix
         run: scripts/gen_matrix.py windows
@@ -309,7 +314,7 @@ jobs:
       release_mirror_url: ${{ steps.set_env.outputs.release_mirror_url }}
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - name: Set up QEMU
         if: success() && !matrix.skip && matrix.needs_qemu
@@ -333,7 +338,7 @@ jobs:
         uses: addnab/docker-run-action@v3
         with:
           registry: ghcr.io
-          image: ghcr.io/ruyisdk/ruyi-python-dist:20250406
+          image: ghcr.io/ruyisdk/ruyi-python-dist:20250821
           options: |
             --user root
             --platform linux/${{ matrix.arch }}
@@ -366,7 +371,7 @@ jobs:
     name: ${{ matrix.job_name }}
     runs-on: ${{ matrix.runs_on }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - name: Install Poetry
         if: success() && !matrix.skip
@@ -412,7 +417,7 @@ jobs:
     needs:
       - lints-result
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           # for git-describe to work, but also https://github.com/actions/checkout/issues/1467
           # fetch-tags: true
@@ -460,7 +465,7 @@ jobs:
     needs:
       - dist-result
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - uses: actions/setup-python@v5
         with:
           python-version-file: "pyproject.toml"
@@ -492,7 +497,7 @@ jobs:
     needs:
       - lints-result
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - name: Install Poetry
         run: pipx install poetry
