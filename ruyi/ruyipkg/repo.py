@@ -34,7 +34,7 @@ from .pkg_manifest import (
     InputPackageManifestType,
     is_prerelease,
 )
-from .profile import PluginProfileProvider, ProfileProxy
+from .profile import PluginProfileProvider, ProfileEntityProvider, ProfileProxy
 from .protocols import ProvidesPackageManifests
 
 if sys.version_info >= (3, 11):
@@ -234,6 +234,7 @@ class MetadataRepo(ProvidesPackageManifests):
             gc.logger,
             FSEntityProvider(gc.logger, pathlib.Path(self.root) / "entities"),
             MetadataRepoEntityProvider(self),
+            ProfileEntityProvider(self),
         )
         self._plugin_host_ctx = PluginHostContext.new(gc.logger, self.plugin_root)
         self._plugin_fn_evaluator = self._plugin_host_ctx.make_evaluator()
@@ -284,7 +285,9 @@ class MetadataRepo(ProvidesPackageManifests):
             self.repo = Repository(self.root)
             return self.repo
 
-        self.logger.I(f"the package repository does not exist at [yellow]{self.root}[/]")
+        self.logger.I(
+            f"the package repository does not exist at [yellow]{self.root}[/]"
+        )
         self.logger.I(f"cloning from [cyan link={self.remote}]{self.remote}[/]")
 
         with RemoteGitProgressIndicator() as pr:
@@ -313,7 +316,7 @@ class MetadataRepo(ProvidesPackageManifests):
 
         # only manage the repo settings on the user's behalf if the user
         # has not overridden the repo directory themselves
-        allow_auto_management = self._gc.override_repo_dir is None
+        allow_auto_management = not self._gc.have_overridden_repo_dir
 
         pull_ff_or_die(
             self.logger,
