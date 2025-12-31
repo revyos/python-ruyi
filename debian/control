@@ -11,6 +11,7 @@ Build-Depends:
  python3-setuptools,
  python3-all,
  pybuild-plugin-pyproject,
+ python3-requests,
  python3-arpy <!nocheck>,
  python3-fastjsonschema <!nocheck>,
  python3-jinja2 <!nocheck>,
@@ -19,6 +20,8 @@ Build-Depends:
  python3-rich <!nocheck>,
  python3-semver <!nocheck>,
  python3-tomlkit <!nocheck>,
+ python3-pygit2 <!nocheck>,
+ python3-yaml <!nocheck>,
 #Testsuite: autopkgtest-pkg-python
 Standards-Version: 4.7.2
 Homepage: https://github.com/ruyisdk/ruyi
