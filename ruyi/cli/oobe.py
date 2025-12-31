@@ -30,13 +30,9 @@ class OOBE:
         ]
 
     def is_first_run(self) -> bool:
-        if tm := self._gc.telemetry:
-            return tm.is_first_run
-        # cannot reliably determine first run status without telemetry
-        # we may revisit this later if it turns out users want OOBE tips even
-        # if they know how to disable telemetry (hence more likely to be power
-        # users)
-        return False
+        # We now always have our first-run indicator because of the minimal
+        # telemetry mode.
+        return self._gc.telemetry.is_first_run
 
     def should_prompt(self) -> bool:
         from ..utils.global_mode import is_env_var_truthy
@@ -65,7 +61,7 @@ class OOBE:
             handler()
 
     def _builtin_shell_completion_tip(self) -> None:
-        from ..telemetry.node_info import probe_for_shell
+        from ..utils.node_info import probe_for_shell
         from .completion import SUPPORTED_SHELLS
 
         # Only show the tip if we're not externally managed by a package manager,

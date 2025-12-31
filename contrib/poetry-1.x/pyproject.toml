@@ -4,7 +4,7 @@ build-backend = "poetry.core.masonry.api"
 
 [tool.poetry]
 name = "ruyi"
-version = "0.42.0"
+version = "0.44.0"
 description = "Package manager for RuyiSDK"
 keywords = ["ruyi", "ruyisdk"]
 license = "Apache-2.0"
@@ -22,6 +22,7 @@ classifiers = [
   "Programming Language :: Python :: 3.11",
   "Programming Language :: Python :: 3.12",
   "Programming Language :: Python :: 3.13",
+  "Programming Language :: Python :: 3.14",
   "Topic :: Software Development :: Build Tools",
   "Topic :: Software Development :: Embedded Systems",
   "Topic :: System :: Software Distribution",
@@ -35,7 +36,7 @@ argcomplete = ">=2.0.0"
 arpy = "*"
 fastjsonschema = ">=2.15.1"
 jinja2 = "^3"
-packaging = ">=21"
+# cannot represent multiple pygit2's with different python version markers
 pygit2 = ">=1.6"
 pyyaml = ">=5.4"
 requests = "^2"
