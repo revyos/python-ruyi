@@ -109,13 +109,14 @@ jobs:
           - "3.11"
           - "3.12"
           - "3.13"
+          - "3.14"
         experimental: [false]
         baseline: [false]
         runs_on: ["ubuntu-latest"]
         poetry: [2]
         include:
           # not yet available
-          #- python: '3.14'
+          #- python: '3.15'
           #  baseline: false
           #  experimental: true
           #  runs_on: ubuntu-latest
@@ -233,7 +234,7 @@ jobs:
         run: |
           sed -i 's@pip install -i https://mirrors.bfsu.edu.cn/pypi/web/simple @pip install @' tests/ruyi-litester/scripts/ruyi/ruyi-src-install.bash
           export PIPX_BIN_DIR=/usr/local/bin
-          export RUYI_VERSION=0.41.0
+          export RUYI_VERSION=0.43.0
           ./tests/ruyi-litester/rit.bash -s --suites "$(pwd)/tests/rit-suites" ruyi-gha
 
   shellcheck:
@@ -324,7 +325,11 @@ jobs:
         if: success() && !matrix.skip
         uses: actions/cache@v4
         with:
-          key: ${{ runner.os }}-tgt-${{ matrix.arch }}-r4
+          key: dist-${{ runner.os }}-${{ matrix.arch }}-r5-${{ hashFiles('poetry.lock') }}
+          restore-keys: |
+            dist-${{ runner.os }}-${{ matrix.arch }}-r5
+            ${{ runner.os }}-tgt-${{ matrix.arch }}-r4
+            ${{ runner.os }}-tgt-${{ matrix.arch }}
           path: |
             build-cache
 
@@ -338,7 +343,7 @@ jobs:
         uses: addnab/docker-run-action@v3
         with:
           registry: ghcr.io
-          image: ghcr.io/ruyisdk/ruyi-python-dist:20250821
+          image: ghcr.io/ruyisdk/ruyi-python-dist:20251024
           options: |
             --user root
             --platform linux/${{ matrix.arch }}
@@ -390,7 +395,11 @@ jobs:
         if: success() && !matrix.skip
         uses: actions/cache@v4
         with:
-          key: ${{ runner.os }}-tgt-${{ matrix.arch }}
+          key: clcache-${{ runner.os }}-${{ matrix.arch }}-r5-${{ hashFiles('poetry.lock') }}
+          restore-keys: |
+            clcache-${{ runner.os }}-${{ matrix.arch }}-r5
+            ${{ runner.os }}-tgt-${{ matrix.arch }}-r4
+            ${{ runner.os }}-tgt-${{ matrix.arch }}
           path: |
             /clcache
 
